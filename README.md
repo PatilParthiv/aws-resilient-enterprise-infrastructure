@@ -1,15 +1,10 @@
 # Highly Available & Zero-Trust Cloud Infrastructure on AWS
-...
-cd ~/aws-resilient-enterprise-infrastructure
-
-cat << 'EOF' > README.md
-# Highly Available & Zero-Trust Cloud Infrastructure on AWS
 
 A production-grade, multi-tier AWS architecture designed across multiple Availability Zones, featuring automated scaling, load balancing, strict subnet isolation, and zero-trust portless instance management.
 
 ---
 
-## 🏛️ Architecture Overview
+Architecture Overview :
 
 Security & Architectural Highlights :
 
@@ -38,31 +33,5 @@ Verification & Resilience Tests :
 
  - Internal VPC TCP Handshake: Executed nc -zv 10.0.3.203 22 from the app tier terminal via SSM to confirm inter-subnet routing while external access remained completely blocked
 
+<img width="664" height="710" alt="image" src="https://github.com/user-attachments/assets/8710c3f7-f5e6-456a-874b-aefc2188cd41" />
 
-                               [ Internet Users ]
-                                       │
-                              [ Internet Gateway ]
-                                       │
-┌──────────────────────────────────────▼──────────────────────────────────────┐
-│ Custom VPC (10.0.0.0/16) - Multi-Availability Zone                          │
-│                                                                             │
-│  ┌───────────────────────────────┐        ┌───────────────────────────────┐ │
-│  │ Public Subnet AZ-1a (10.0.1.0)│        │ Public Subnet AZ-1b (10.0.2.0)│ │
-│  │  [ Application Load Balancer ]│────────┼[ Application Load Balancer ]  │ │
-│  │  [ NAT Gateway (AZ-1a)       ]│        │                               │ │
-│  └──────────────┬────────────────┘        └───────────────┬───────────────┘ │
-│                 │                                         │                 │
-│  ┌──────────────▼────────────────┐        ┌───────────────▼───────────────┐ │
-│  │ Private App AZ-1a (10.0.11.0) │        │ Private App AZ-1b (10.0.12.0) │ │
-│  │  [ Auto Scaling Group EC2    ]│◀───────┼[ Auto Scaling Group EC2    ]  │ │
-│  │  (No Public IP Assigned)      │        │  (No Public IP Assigned)      │ │
-│  └──────────────┬────────────────┘        └───────────────┬───────────────┘ │
-│                 │ (Outbound updates via NAT)              │                 │
-│  ┌──────────────▼────────────────┐        ┌───────────────▼───────────────┐ │
-│  │ Private DB AZ-1a (10.0.21.0)  │        │ Private DB AZ-1b (10.0.22.0)  │ │
-│  │  [ Isolated MySQL Database ]  │        │  [ Standby Replica / Subnet ] │ │
-│  │  (Zero Direct Internet Access)│        │  (Zero Direct Internet Access)│ │
-│  └───────────────────────────────┘        └───────────────────────────────┘ │
-│                                                                             │
-│  [ Zero-Trust Management ]: AWS SSM Session Manager (Port 22 Closed)        │
-└─────────────────────────────────────────────────────────────────────────────┘
