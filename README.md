@@ -38,38 +38,31 @@ Verification & Resilience Tests :
 
  - Internal VPC TCP Handshake: Executed nc -zv 10.0.3.203 22 from the app tier terminal via SSM to confirm inter-subnet routing while external access remained completely blocked
 
-                                [ Internet Users ]
-                                        │
-                               [ Internet Gateway ]
-                                        │
-┌───────────────────────────────────────▼────────────────────────────────────────┐
-│ Custom VPC (10.0.0.0/16) - Multi-AZ                                            │
-│                                                                                │
-│  ┌─────────────────────────────────┐   ┌─────────────────────────────────┐     │
-│  │ Public Subnet AZ-1a (10.0.1.0)  │   │ Public Subnet AZ-1b (10.0.2.0)  │     │
-│  │  ┌───────────────────────────┐  │   │  ┌───────────────────────────┐  │     │
-│  │  │ Application Load Balancer │──┼───┼──│ Application Load Balancer │  │     │
-│  │  └─────────────┬─────────────┘  │   │  └─────────────┬─────────────┘  │     │
-│  │  ┌─────────────▼─────────────┐  │   │                │                │     │
-│  │  │ NAT Gateway (AZ-1a)       │  │   │                │                │     │
-│  │  └─────────────┬─────────────┘  │   │                │                │     │
-│  └────────────────┼────────────────┘   └────────────────┼────────────────┘     │
-│                   │                                     │                      │
-│  ┌────────────────┼────────────────┐   ┌────────────────┼────────────────┐     │
-│  │ Private App AZ-1a (10.0.11.0)   │   │ Private App AZ-1b (10.0.12.0)   │     │
-│  │  ┌───────────────────────────┐  │   │  ┌───────────────────────────┐  │     │
-│  │  │ Auto Scaling Group EC2    │◄─┼───┼──│ Auto Scaling Group EC2    │  │     │
-│  │  │ (No Public IP Assigned)   │  │   │  │ (No Public IP Assigned)   │  │     │
-│  │  └─────────────┬─────────────┘  │   │  └─────────────┬─────────────┘  │     │
-│  └────────────────┼────────────────┘   └────────────────┼────────────────┘     │
-│                   │ (Outbound updates via NAT)          │                      │
-│  ┌────────────────▼────────────────┐   ┌────────────────▼────────────────┐     │
-│  │ Private DB AZ-1a (10.0.21.0)    │   │ Private DB AZ-1b (10.0.22.0)    │     │
-│  │  ┌───────────────────────────┐  │   │                                 │     │
-│  │  │ Isolated Database Tier    │  │   │                                 │     │
-│  │  │ (Zero Inbound/Outbound)   │  │   │                                 │     │
-│  │  └───────────────────────────┘  │   │                                 │     │
-│  └─────────────────────────────────┘   └─────────────────────────────────┘     │
-│                                                                                │
-│  [ Zero-Trust Management ]: AWS SSM Session Manager (No open inbound Port 22)  │
-└────────────────────────────────────────────────────────────────────────────────┘
+
+                               [ Internet Users ]
+                                       │
+                              [ Internet Gateway ]
+                                       │
+┌──────────────────────────────────────▼──────────────────────────────────────┐
+│ Custom VPC (10.0.0.0/16) - Multi-Availability Zone                          │
+│                                                                             │
+│  ┌───────────────────────────────┐        ┌───────────────────────────────┐ │
+│  │ Public Subnet AZ-1a (10.0.1.0)│        │ Public Subnet AZ-1b (10.0.2.0)│ │
+│  │  [ Application Load Balancer ]│────────┼[ Application Load Balancer ]  │ │
+│  │  [ NAT Gateway (AZ-1a)       ]│        │                               │ │
+│  └──────────────┬────────────────┘        └───────────────┬───────────────┘ │
+│                 │                                         │                 │
+│  ┌──────────────▼────────────────┐        ┌───────────────▼───────────────┐ │
+│  │ Private App AZ-1a (10.0.11.0) │        │ Private App AZ-1b (10.0.12.0) │ │
+│  │  [ Auto Scaling Group EC2    ]│◀───────┼[ Auto Scaling Group EC2    ]  │ │
+│  │  (No Public IP Assigned)      │        │  (No Public IP Assigned)      │ │
+│  └──────────────┬────────────────┘        └───────────────┬───────────────┘ │
+│                 │ (Outbound updates via NAT)              │                 │
+│  ┌──────────────▼────────────────┐        ┌───────────────▼───────────────┐ │
+│  │ Private DB AZ-1a (10.0.21.0)  │        │ Private DB AZ-1b (10.0.22.0)  │ │
+│  │  [ Isolated MySQL Database ]  │        │  [ Standby Replica / Subnet ] │ │
+│  │  (Zero Direct Internet Access)│        │  (Zero Direct Internet Access)│ │
+│  └───────────────────────────────┘        └───────────────────────────────┘ │
+│                                                                             │
+│  [ Zero-Trust Management ]: AWS SSM Session Manager (Port 22 Closed)        │
+└─────────────────────────────────────────────────────────────────────────────┘
