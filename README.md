@@ -1,8 +1,9 @@
 # Highly Available & Zero-Trust Cloud Infrastructure on AWS
 
 A production-grade, multi-tier AWS architecture designed across multiple Availability Zones, featuring automated scaling, load balancing, strict subnet isolation, and zero-trust portless instance management.
+<img width="861" height="656" alt="Screenshot 2026-08-29 101700" src="https://github.com/user-attachments/assets/c7a88ebc-0dab-441f-8d1d-b27e3daf7a69" />
 
----
+
 
 Architecture Overview :
 
